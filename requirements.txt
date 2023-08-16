@@ -1,0 +1,8 @@
+fastapi==0.100.0
+uvicorn==0.23.1
+databases==0.7.0
+pydantic-settings==2.0.2
+pytest===7.4.0
+alembic==1.11.1
+motor==3.2.0
+pydantic[email]
