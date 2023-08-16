@@ -3,8 +3,6 @@ import secrets
 import databases
 import sqlalchemy
 from pydantic_settings import BaseSettings
-from pydantic import PostgresDsn, RedisDsn, root_validator
-from databases import DatabaseURL
 
 
 class Config(BaseSettings):
