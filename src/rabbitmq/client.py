@@ -2,7 +2,7 @@ import json
 import uuid
 from asyncio.log import logger
 
-import pika,os
+import pika, os
 import aio_pika
 from dotenv import load_dotenv
 load_dotenv()
@@ -12,15 +12,18 @@ class PikaClient:
     """
         Consuming data from other services
     """
-    def __init__(self, process_callable):
+    def __init__(self, process_callable, queue_name):
         """
             basic configuration for initializing pika client connection
         """
+        # getting rabbitmq host
+        self.host = os.environ.get('RABBIT_HOST', '127.0.0.1')
+        self.port = os.environ.get('RABBIT_PORT', 5672)
         # getting queue name from .env
-        self.publish_queue_name = os.environ.get('PUBLISH_QUEUE')
+        self.publish_queue_name = queue_name
         # connecting rabbit host
         self.connection = pika.BlockingConnection(
-            pika.ConnectionParameters(host=os.environ.get('RABBIT_HOST', '127.0.0.1'))
+            pika.ConnectionParameters(host=self.host)
         )
         # connecting rabbit channel
         self.channel = self.connection.channel()
@@ -33,25 +36,25 @@ class PikaClient:
         print('Pika connection initialized')
 
     async def process_incoming_message(self, message):
-        """Processing incoming message from RabbitMQ"""
+        """
+            Processing incoming message from RabbitMQ
+        """
         await message.ack()
         body = message.body
-        logger.info('Received message')
-        print(f'coming data from: {message.body}')
         if body:
-            self.process_callable(json.loads(body))
+            await self.process_callable(json.loads(body))
 
     async def consume(self, loop):
         """
             Setup message listener with the current running loop
         """
         connection = await aio_pika.connect_robust(
-            host=os.environ.get('RABBIT_HOST', '127.0.0.1'),
-            port=5672,
+            host=self.host,
+            port=self.port,
             loop=loop
         )
         channel = await connection.channel()
-        queue = await channel.declare_queue(os.environ.get('CONSUME_QUEUE'))
+        queue = await channel.declare_queue(self.publish_queue_name)
         await queue.consume(self.process_incoming_message, no_ack=False)
         print('Established pika async listener')
         return connection
@@ -60,7 +63,7 @@ class PikaClient:
         """
             Method to publish message to RabbitMQ
         """
-        print(f'sent: {message}')
+        print(f'I produced that log: {message}')
         # publish message to the RabbitMQ
         self.channel.basic_publish(
             exchange='',

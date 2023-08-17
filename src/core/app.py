@@ -5,7 +5,12 @@ from fastapi import FastAPI, APIRouter, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
+from ..oauth_log.services.consumer import OauthLogConsumer
 from ..rabbitmq.client import PikaClient
+import nest_asyncio
+
+# 👇️ call apply()
+nest_asyncio.apply()
 
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
 
@@ -14,9 +19,10 @@ class LogApp(FastAPI):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.pika_client = PikaClient(self.log_incoming_message)
+        self.pika_client = PikaClient(self.log_incoming_message, 'oauth_log')
+        self.oauth_log = OauthLogConsumer()
 
-    @classmethod
+    # @classmethod
     def log_incoming_message(cls, message: dict):
         """Method to do something meaningful with the incoming message"""
         logger.info('Here we got incoming message %s', message)
@@ -49,9 +55,7 @@ log_app.include_router(prefix='/api/v1', router=router)
 @log_app.on_event('startup')
 async def startup():
     loop = asyncio.get_running_loop()
-    task = loop.create_task(log_app.pika_client.consume(loop))
-    print(await task)
-    await task
+    loop.run_until_complete(asyncio.gather(log_app.oauth_log.consumer(loop)))
 
 
 log_app.add_middleware(
