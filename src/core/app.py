@@ -1,13 +1,17 @@
-import asyncio
+import asyncio, os
 from asyncio.log import logger
 
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
+from ..database import db
 from ..oauth_log.services.consumer import OauthLogConsumer
 from ..rabbitmq.client import PikaClient
 import nest_asyncio
+from pymongo import MongoClient
+from dotenv import load_dotenv
+load_dotenv()
 
 # 👇️ call apply()
 nest_asyncio.apply()
@@ -55,7 +59,13 @@ log_app.include_router(prefix='/api/v1', router=router)
 @log_app.on_event('startup')
 async def startup():
     loop = asyncio.get_running_loop()
-    loop.run_until_complete(asyncio.gather(log_app.oauth_log.consumer(loop)))
+    loop.run_until_complete(asyncio.gather(log_app.oauth_log.consumer(loop), log_app.oauth_log.producer()))
+    db.connect_to_database(path=os.environ.get('MongoDB_URL'))
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await db.close_database_connection()
 
 
 log_app.add_middleware(
