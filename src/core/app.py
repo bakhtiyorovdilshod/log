@@ -1,16 +1,18 @@
 import asyncio, os
+import json
 from asyncio.log import logger
 
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from ..database import db
+from ..database import mongo_manager
+from ..oauth_log.schemas.consumer import OauthLogConsumerSchema
 from ..oauth_log.services.consumer import OauthLogConsumer
 from ..rabbitmq.client import PikaClient
 import nest_asyncio
-from pymongo import MongoClient
 from dotenv import load_dotenv
+from src.oauth_log.routers.log import router as log_router
 load_dotenv()
 
 # 👇️ call apply()
@@ -34,6 +36,9 @@ class LogApp(FastAPI):
 
 log_app = LogApp()
 
+
+log_app.include_router(log_router, tags=["logs"], prefix="/api/v1")
+
 router = APIRouter(
     tags=['items'],
     responses={404: {"description": "Page not found"}}
@@ -47,9 +52,10 @@ class MessageSchema(BaseModel):
 
 
 @router.post('/send-message')
-async def send_message(payload: MessageSchema, request: Request):
+async def send_message(payload: OauthLogConsumerSchema, request: Request):
+    print(payload)
     request.app.pika_client.send_message(
-        {"message": payload.message}
+        {"message": json.loads(payload.json())}
     )
     return {"status": "ok"}
 
@@ -58,14 +64,14 @@ log_app.include_router(prefix='/api/v1', router=router)
 
 @log_app.on_event('startup')
 async def startup():
+    mongo_manager.connect_to_database(path=os.environ.get('MongoDB_URL'))
     loop = asyncio.get_running_loop()
-    loop.run_until_complete(asyncio.gather(log_app.oauth_log.consumer(loop), log_app.oauth_log.producer()))
-    db.connect_to_database(path=os.environ.get('MongoDB_URL'))
+    loop.run_until_complete(asyncio.gather(log_app.oauth_log.consumer(loop)))
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    await db.close_database_connection()
+    await mongo_manager.close_database_connection()
 
 
 log_app.add_middleware(

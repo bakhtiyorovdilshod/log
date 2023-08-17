@@ -17,10 +17,10 @@ class MongoManager:
     db: Database = None
 
     def connect_to_database(self, path: str):
-        logging.info("Connecting to MongoDB.")
+        print("Connecting to MongoDB.")
         self.client = MongoClient(path)
-        self.db = self.client.hr_log
-        logging.info("Connected to MongoDB.")
+        self.db = self.client['hr_log']
+        print("Connected to MongoDB.")
 
     def close_database_connection(self):
         logging.info("Closing connection with MongoDB.")
@@ -28,4 +28,4 @@ class MongoManager:
         logging.info("Closed connection with MongoDB.")
 
 
-db = MongoManager()
+mongo_manager = MongoManager()
