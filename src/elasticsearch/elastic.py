@@ -68,6 +68,6 @@ class BaseElasticSearch:
     async def get_index(self, index_name, ObjectId):
         """get one index data by ObjectId"""
 
-        response = es.get(index=index_name, id=ObjectId)
+        response = es.get(index=index_name, id=ObjectId)['hits']['hits']
         return response
 
