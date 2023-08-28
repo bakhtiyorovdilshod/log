@@ -14,7 +14,7 @@ es_auth = ESAuth()
 POSTS_INDEX_NAME = "users"
 
 POSTS_INDEX_SYNONYMS = [
-    "es, elasticsearch",
+    "es, elasticsearch_log",
     "js, javascript",
     "ts, typescript",
     "k8s, k9s, Kubernetes",

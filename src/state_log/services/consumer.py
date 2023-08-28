@@ -1,6 +1,7 @@
 import os
 
 from src.rabbitmq.client import PikaClient
+from src.elasticsearch_log.elastic import BaseElasticSearch
 
 
 class StateLogConsumer:
@@ -11,6 +12,8 @@ class StateLogConsumer:
 
     async def consumer(self, loop):
         pika_client = await PikaClient(self.log_income_message, self.queue_name).consume(loop)
+        elastic_response = BaseElasticSearch()
+        elastic_response = elastic_response.create_elastic(state, pika_client)
 
     async def insert(self, message):
         pass
