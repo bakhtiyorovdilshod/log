@@ -3,6 +3,12 @@ import logging
 from pymongo import MongoClient
 from pymongo.database import Database
 
+import motor.motor_asyncio
+from bson.objectid import ObjectId
+from motor.motor_asyncio import AsyncIOMotorDatabase
+import motor
+
+
 MONGO_DETAILS = 'mongodb://localhost:27017'
 
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
