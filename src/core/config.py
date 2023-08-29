@@ -11,3 +11,4 @@ class Config(BaseSettings):
 
 
 settings = Config()
+
