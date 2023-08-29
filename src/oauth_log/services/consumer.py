@@ -38,5 +38,6 @@ class OauthLogConsumer:
         """
             Method to do something meaningful with the incoming message
         """
+
         print(f'I consumed this message {message}')
         await self.insert(message)
