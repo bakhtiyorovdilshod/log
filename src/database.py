@@ -1,5 +1,5 @@
 import motor.motor_asyncio
-import logging
+import logging, os
 from pymongo import MongoClient
 from pymongo.database import Database
 
@@ -9,7 +9,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 import motor
 
 
-MONGO_DETAILS = 'mongodb://localhost:27017'
+MONGO_DETAILS = os.environ.get('MONGO_URL',' mongodb://localhost:27017')
 
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
 
