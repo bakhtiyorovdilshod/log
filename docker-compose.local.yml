@@ -1,6 +1,14 @@
 version: '3.8'
 
 services:
+  log:
+    build: .
+    container_name: log
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+
   mongodb:
     image: mongo
     container_name: mongodb
@@ -15,15 +23,31 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     ports:
-      - 5672:5672
+      - 5673:5672
       - 15672:15672
     networks:
       - rabbitmq_network
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.1
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=elastic
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
 
 networks:
   rabbitmq_network:
-    driver: bridge
 
 volumes:
   mongodb_data:
   rabbitmq_data:
+  elasticsearch_data:
