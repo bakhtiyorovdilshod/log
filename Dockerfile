@@ -1,13 +1,17 @@
-FROM python:3.10-slim
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim-buster
 
-WORKDIR /code
+# Set the working directory to /app
+WORKDIR /app
 
-COPY ./requirements.txt /code/requirements.txt
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+# Install the required packages
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8090
+# Expose the FastAPI port
+EXPOSE 8000
 
-COPY . /code
-
-CMD ["python", "main.py"]
+# Run the command to start the FastAPI server
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
