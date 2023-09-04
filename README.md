@@ -1,5 +1,18 @@
+# Hr Log Service 
+    A log service for HR-related activities.
 
-language:Python3 >=3.10, framework: FastApi [ pip install fastapi, pip install "uvicorn[standard]" ] 
-Database: MongoDB database_name:hr_log, localhost:27017
-ElasticSearch: localhost:9200
-RabbitMQ: localhost: 5672
+# Requirements
+    . RabbitMQ
+    . MongoDB
+    . ElasticSearch
+
+# BUILD:
+    . docker build -t {hr_log} .
+      docker run -p 8000:8000 {hr_log}
+
+# .env Configuration
+    . RABBIT_URL=amqp://rabbit:rabbit@localhost:5673/
+    . MongoDB_URL=mongodb://localhost:2023
+    . ELASTIC_HOST=http://localhost:9200
+    . ELASTIC_USERNAME=elastic
+    . ELASTIC_PASSWORD=elastic
