@@ -8,7 +8,7 @@
 
 # BUILD:
     . docker build -t {hr_log} .
-      docker run 
+      docker run -p 8000:8000 {hr_log}
 
 # .env Configuration
     . RABBIT_URL=amqp://rabbit:rabbit@localhost:5673/
