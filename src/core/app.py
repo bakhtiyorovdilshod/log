@@ -38,12 +38,6 @@ app.add_middleware(
 )
 
 
-@app.post("/items/")
-async def create_item(item: Dict):
-    result = await db.db['log'].insert_one(item)
-    return {"id": str(result.inserted_id)}
-
-
 @app.post('/publish/')
 async def publish(data: dict):
     rabbitmq = RabbitMQ(url=os.environ.get('RABBIT_URL'))
