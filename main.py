@@ -1,3 +1,5 @@
+import asyncio
+
 import uvicorn
 from src.core.app import app
 

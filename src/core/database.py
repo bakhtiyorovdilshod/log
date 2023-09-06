@@ -16,7 +16,6 @@ class MongoManager:
 
     # database connect and close connections
     async def connect_to_database(self, path: str):
-        print(path)
         logger.info("Connecting to MongoDB")
         self.client = AsyncIOMotorClient(path, maxPoolSize=10, minPoolSize=10)
         self.db = self.client['log']

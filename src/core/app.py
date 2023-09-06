@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from typing import Dict
 
@@ -8,18 +9,19 @@ from src.core.database import db
 from dotenv import load_dotenv
 
 from src.core.rabbit import RabbitMQ
+from src.utils.consumers import consume_oauth_log, consume_state_log
 
 load_dotenv()
 
 app = FastAPI()
-rabbitmq = RabbitMQ(queue_name='test', url=os.environ.get('RABBIT_URL'))
 
 
 @app.on_event('startup')
 async def startup():
+    rabbitmq = RabbitMQ(url=os.environ.get('RABBIT_URL'))
     await db.connect_to_database(path=os.environ.get('MongoDB_URL'))
-    await rabbitmq.connect()
-    asyncio.ensure_future(rabbitmq.consume())
+    asyncio.create_task(consume_oauth_log(rabbitmq))
+    # asyncio.create_task(consume_state_log(rabbitmq))
 
 
 @app.on_event("shutdown")
@@ -42,7 +44,11 @@ async def create_item(item: Dict):
     return {"id": str(result.inserted_id)}
 
 
-@app.get('/publish/{message}')
-async def publish(message: str):
-    await rabbitmq.publish(message)
-    return {'message': message}
+@app.post('/publish/')
+async def publish(data: dict):
+    rabbitmq = RabbitMQ(url=os.environ.get('RABBIT_URL'))
+    rabbitmq.queue_name = 'oauth'
+    await rabbitmq.connect()
+    data = json.dumps(data).encode('utf-8')
+    await rabbitmq.publish(data)
+    return {'message': data}
