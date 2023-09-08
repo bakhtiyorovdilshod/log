@@ -4,7 +4,7 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.core.database import db
+from backend.app.database.mongodb import db
 from dotenv import load_dotenv
 
 from backend.app.core.rabbit import RabbitMQ

@@ -31,4 +31,3 @@ class MongoManager:
 
 
 db = MongoManager()
-
