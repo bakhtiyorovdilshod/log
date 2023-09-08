@@ -1,14 +1,6 @@
 version: '3.8'
 
 services:
-  log:
-    build: .
-    container_name: log
-    ports:
-      - "8000:8000"
-    depends_on:
-      - rabbitmq
-
   mongodb:
     image: mongo
     container_name: mongodb
