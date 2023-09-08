@@ -1,7 +1,7 @@
 import os
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 
-from src.utils.logger import logger_config
+from backend.app.utils.logger import logger_config
 
 logger = logger_config(__name__)
 

@@ -1,15 +1,14 @@
 import asyncio
 import json
 import os
-from typing import Dict
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.core.database import db
+from backend.app.core.database import db
 from dotenv import load_dotenv
 
-from src.core.rabbit import RabbitMQ
-from src.utils.consumers import consume_oauth_log, consume_state_log
+from backend.app.core.rabbit import RabbitMQ
+from backend.app.utils.consumers import consume_oauth_log, consume_state_log
 
 load_dotenv()
 
@@ -36,12 +35,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.post("/items/")
-async def create_item(item: Dict):
-    result = await db.db['log'].insert_one(item)
-    return {"id": str(result.inserted_id)}
 
 
 @app.post('/publish/')

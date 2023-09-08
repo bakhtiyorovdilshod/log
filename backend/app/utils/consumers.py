@@ -1,5 +1,5 @@
 import asyncio
-from src.utils.logger import logger_config
+from backend.app.utils.logger import logger_config
 
 logger = logger_config(__name__)
 
