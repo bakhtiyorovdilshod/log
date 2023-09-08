@@ -1,7 +1,7 @@
 import json
 
-from src.utils.elastic import write_data_elastic
-from src.utils.mongodb import write_to_mongodb
+from backend.app.utils.elastic import write_data_elastic
+from backend.app.utils.mongodb import write_to_mongodb
 
 
 def write_log(method):

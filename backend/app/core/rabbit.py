@@ -2,7 +2,7 @@ from aio_pika import connect_robust, Message
 from dotenv import load_dotenv
 
 
-from src.utils.decorator import write_log
+from backend.app.utils.decorator import write_log
 
 load_dotenv()
 

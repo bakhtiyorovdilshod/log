@@ -2,8 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
-from src.core.elastic import ElasticConfig
-from src.utils.logger import logger_config
+from backend.app.core.elastic import ElasticConfig
+from backend.app.utils.logger import logger_config
 
 logger = logger_config(__name__)
 
