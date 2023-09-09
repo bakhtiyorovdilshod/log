@@ -9,11 +9,12 @@ from dotenv import load_dotenv
 
 from backend.app.core.rabbit import RabbitMQ
 from backend.app.utils.consumers import consume_oauth_log, consume_state_log
+from backend.app.api.routers import v1
 
 load_dotenv()
 
 app = FastAPI()
-
+app.include_router(v1, prefix="/api/v1")
 
 @app.on_event('startup')
 async def startup():
