@@ -63,3 +63,19 @@ async def object_bson_name(name: str):
 # --------------------------------------------  RabbitMQ Consumer template  -------------------------#
 
 
+def rabbit_consumer_helper(data) -> dict:
+    return {
+        "id": str(data['_id']),
+        "queue_name": data['queue_name'],
+        "table_name": data['table_name'],
+        # "method": data["method"],
+        # "key": data["key"],
+        # "type": data["type"]
+    }
+
+
+async def create_rabbit_consumer(data: dict) -> dict:
+    """RabbitMQ Consumer to mongodb create"""
+    service_query = await db.db['rabbit_consumer'].insert_one(data)
+    template_query = await db.db['rabbit_consumer'].find_one({"_id": service_query.inserted_id})
+    return rabbit_consumer_helper(template_query)

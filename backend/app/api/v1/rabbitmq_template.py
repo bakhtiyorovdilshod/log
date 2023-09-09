@@ -2,7 +2,7 @@ from fastapi import FastAPI, APIRouter, Body, HTTPException
 from backend.app.schemas.rabbitmq_template import (
     RabbitMQTemplateBase,
     RabbitMQTemplateById,
-
+    RabbitConsumerBase
 )
 from backend.app.database.mongodb import MongoManager
 from fastapi.encoders import jsonable_encoder
@@ -17,7 +17,8 @@ from .utils_crud import (
     delete_template,
     retrieve_template,
     retrieve_rabbit_template,
-    object_bson_name
+    object_bson_name,
+    create_rabbit_consumer
 )
 from bson import ObjectId, json_util
 app = APIRouter()
@@ -68,3 +69,12 @@ async def delete_service_name(id: str):
         raise HTTPException(status_code=404, detail="Item not found")
     return {"status": 200, "message": "Service Name successfully deleted"}
 
+
+#---------------------------------------   Rabbit Consumer mongodb create  ----------------------------#
+
+
+@app.post("/create_rabbit_consumer")
+async def create_consumer(data: RabbitConsumerBase = Body(...)):
+    response = jsonable_encoder(data)
+    response_object = await create_rabbit_consumer(response)
+    return ResponseModel(response_object, "success")
