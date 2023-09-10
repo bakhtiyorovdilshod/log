@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from backend.app.database.mongodb import db
 from pydantic import validator
+from typing import Tuple
+from typing import List
 
 
 class RabbitMQTemplateBase(BaseModel):
@@ -14,17 +16,20 @@ class RabbitMQTemplateById(BaseModel):
     id: str
 
 
-class RabbitConsumerFieldsBase(BaseModel):
+# --------------------------------------------   RabbitMQ Consumer -------------------------------------#
+
+
+class RabbitConsumerFields(BaseModel):
     key: str
     type: str
 
 
 class RabbitConsumerValidationBase(BaseModel):
     method: str
-    fields: set[list] = [RabbitConsumerFieldsBase]
+    fields: List[RabbitConsumerFields]
 
 
 class RabbitConsumerBase(BaseModel):
     queue_name: str
     table_name: str
-    validation: set[list] = RabbitConsumerValidationBase
+    validation: List[RabbitConsumerValidationBase]

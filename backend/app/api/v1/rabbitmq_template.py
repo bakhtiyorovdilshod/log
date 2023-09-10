@@ -73,8 +73,3 @@ async def delete_service_name(id: str):
 #---------------------------------------   Rabbit Consumer mongodb create  ----------------------------#
 
 
-@app.post("/create_rabbit_consumer")
-async def create_consumer(data: RabbitConsumerBase = Body(...)):
-    response = jsonable_encoder(data)
-    response_object = await create_rabbit_consumer(response)
-    return ResponseModel(response_object, "success")
