@@ -28,7 +28,7 @@ app = APIRouter()
 async def create_templates(name: RabbitMQTemplateBase = Depends()):
     """rabbitmq service template creating"""
 
-    names = str(name)
+    names = str(name.name)
     response_object = await db.db['rabbit_template'].find_one({'name': names})
     if response_object:
         raise HTTPException(status_code=400, detail="already existing")
@@ -82,7 +82,7 @@ async def update_event_type(id: str, data: RabbitMQTemplateBase = Body(...)):
 
 
 @app.post("/create_event/")
-async def create_Indexation_template(data: RabbitConsumerBase = Body(...)):
+async def create_event_type(data: RabbitConsumerBase = Body(...)):
     """create rabbit validation"""
 
     queue_name = str(data.queue_name)
@@ -95,7 +95,7 @@ async def create_Indexation_template(data: RabbitConsumerBase = Body(...)):
 
 
 @app.get("/all_event/")
-async def get_all_Indexation_templates():
+async def get_all_event_type():
     """get alla rabbit validation"""
 
     stores = []
@@ -107,7 +107,7 @@ async def get_all_Indexation_templates():
 
 
 @app.put("/event{id}/")
-async def update_Indexation_templates(id: str, data: RabbitConsumerBase = Body(...)):
+async def update_event_type(id: str, data: RabbitConsumerBase = Body(...)):
     id = ObjectId(id)
     update_data = data.model_dump(exclude_none=True)
     result = await db.db['Indexation_templates'].update_one({"_id": id}, {"$set": update_data})
@@ -119,7 +119,7 @@ async def update_Indexation_templates(id: str, data: RabbitConsumerBase = Body(.
 
 
 @app.delete("/event{id}/")
-async def delete_Indexation_templates(id: str):
+async def delete_event_type(id: str):
     id = ObjectId(id)
     response_object = await db.db['Indexation_templates'].delete_one({"_id": id})
     print(response_object, "ppppppp")
