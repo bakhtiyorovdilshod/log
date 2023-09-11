@@ -67,6 +67,17 @@ async def delete_service_name(id: str):
     return {"status": 200, "message": "Service Name successfully deleted"}
 
 
+@app.put("/service/{id}")
+async def update_event_type(id: str, data: RabbitMQTemplateBase = Body(...)):
+    id = ObjectId(id)
+    update_data = data.model_dump(exclude_none=True)
+    result = await db.db['rabbit_template'].update_one({"_id": id}, {"$set": update_data})
+    error_result = await db.db['rabbit_template'].find_one({"_id": id})
+    if result.modified_count:
+        return {"message": "Service Name has been updated"}
+    elif error_result is None:
+        raise HTTPException(status_code=404, detail="Service name model not found!")
+
 # ---------------------------------------   Rabbit Consumer mongodb create  ----------------------------#
 
 
@@ -97,16 +108,21 @@ async def get_all_Indexation_templates():
 
 @app.put("/event{id}/")
 async def update_Indexation_templates(id: str, data: RabbitConsumerBase = Body(...)):
-    # id = ObjectId(id)
-    request = {k: v for k, v in data.model_dump().items() if v is not None}
-    updated_validation = await update_Indexation_templates(id, data)
-    update_data = data.model_dump()
+    id = ObjectId(id)
+    update_data = data.model_dump(exclude_none=True)
+    result = await db.db['Indexation_templates'].update_one({"_id": id}, {"$set": update_data})
+    error_result = await db.db['Indexation_templates'].find_one({"_id": id})
+    if result.modified_count:
+        return {"message": "Event type model updated"}
+    elif error_result is None:
+        raise HTTPException(status_code=404, detail="Event type model not found!")
 
 
 @app.delete("/event{id}/")
 async def delete_Indexation_templates(id: str):
     id = ObjectId(id)
     response_object = await db.db['Indexation_templates'].delete_one({"_id": id})
+    print(response_object, "ppppppp")
     if response_object.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Item not found")
     return {"status": 200, "message": "Service Name successfully deleted"}
