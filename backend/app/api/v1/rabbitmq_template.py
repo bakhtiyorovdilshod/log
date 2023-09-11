@@ -1,28 +1,19 @@
-from fastapi import FastAPI, APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, HTTPException, Depends
 from backend.app.schemas.rabbitmq_template import (
     RabbitMQTemplateBase,
+    RabbitConsumerBase,
     RabbitMQTemplateById,
-    RabbitConsumerBase
+    RabbitMQTemplateBase
 )
-from backend.app.database.mongodb import MongoManager
-from fastapi.encoders import jsonable_encoder
 from backend.app.database.mongodb import db
-from bson.objectid import ObjectId
-from bson import BSON
-from .utils_crud import (
+from backend.app.services.utils_crud import (
     create_template,
     ResponseModel,
-    rabbit_template_helper,
-    update_template,
-    delete_template,
     retrieve_template,
     retrieve_rabbit_template,
-    object_bson_name,
     create_Indexation_templates,
-    update_Indexation_templates,
-    delete_Indexation_templates
+    update_Indexation_templates
 )
-from bson import ObjectId, json_util
 from bson import ObjectId, json_util
 from fastapi.encoders import jsonable_encoder
 import json
@@ -34,7 +25,7 @@ app = APIRouter()
 
 
 @app.post("/create")
-async def create_templates(name: RabbitMQTemplateBase = Body(...)):
+async def create_templates(name: RabbitMQTemplateBase = Depends()):
     """rabbitmq service template creating"""
 
     names = str(name)
@@ -46,7 +37,7 @@ async def create_templates(name: RabbitMQTemplateBase = Body(...)):
     return ResponseModel(service_query, "Service name create added successfully")
 
 
-@app.get("/get_service/{id}")
+@app.get("/get_service/{id}/")
 async def get_service(id: str):
     """get by ObjectId service"""
     object_id = ObjectId(id)
@@ -58,7 +49,7 @@ async def get_service(id: str):
     return ResponseModel(response_object, "successfully get object")
 
 
-@app.get("/get_all_services")
+@app.get("/all_services/")
 async def get_services():
     """get all services from database"""
 
@@ -66,8 +57,9 @@ async def get_services():
     return ResponseModel(response_object, "Successfully get list of all services")
 
 
-@app.delete("/delete_service_name{id}")
+@app.delete("/service{id}/")
 async def delete_service_name(id: str):
+    """delete service name"""
     objectid = ObjectId(id)
     response_object = await db.db['rabbit_template'].delete_one({'_id': objectid})
     if response_object.deleted_count == 0:
@@ -78,7 +70,7 @@ async def delete_service_name(id: str):
 # ---------------------------------------   Rabbit Consumer mongodb create  ----------------------------#
 
 
-@app.post("/create_Indexation_templates")
+@app.post("/create_event/")
 async def create_Indexation_template(data: RabbitConsumerBase = Body(...)):
     """create rabbit validation"""
 
@@ -91,7 +83,7 @@ async def create_Indexation_template(data: RabbitConsumerBase = Body(...)):
     return ResponseModel(response_object, "success")
 
 
-@app.get("/get_all_Indexation_templates/")
+@app.get("/all_event/")
 async def get_all_Indexation_templates():
     """get alla rabbit validation"""
 
@@ -103,7 +95,7 @@ async def get_all_Indexation_templates():
     return stores
 
 
-@app.put("/update_Indexation_templates{id}")
+@app.put("/event{id}/")
 async def update_Indexation_templates(id: str, data: RabbitConsumerBase = Body(...)):
     # id = ObjectId(id)
     request = {k: v for k, v in data.model_dump().items() if v is not None}
@@ -111,7 +103,7 @@ async def update_Indexation_templates(id: str, data: RabbitConsumerBase = Body(.
     update_data = data.model_dump()
 
 
-@app.delete("/delete_Indexation_templates{id}")
+@app.delete("/event{id}/")
 async def delete_Indexation_templates(id: str):
     id = ObjectId(id)
     response_object = await db.db['Indexation_templates'].delete_one({"_id": id})
