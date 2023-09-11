@@ -1,5 +1,5 @@
 
-from backend.app.core.database import db
+from backend.app.database.mongodb import db
 from backend.app.utils.logger import logger_config
 
 logger = logger_config(__name__)

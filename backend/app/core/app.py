@@ -4,23 +4,24 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.core.database import db
+from backend.app.database.mongodb import db
 from dotenv import load_dotenv
 
 from backend.app.core.rabbit import RabbitMQ
-from backend.app.utils.consumers import consume_oauth_log, consume_state_log
+from backend.app.utils.consumers import consume_log
+from backend.app.api.routers import v1
 
 load_dotenv()
 
 app = FastAPI()
+app.include_router(v1, prefix="/api/v1/log")
 
 
 @app.on_event('startup')
 async def startup():
-    rabbitmq = RabbitMQ(url=os.environ.get('RABBIT_URL'))
     await db.connect_to_database(path=os.environ.get('MongoDB_URL'))
-    asyncio.create_task(consume_oauth_log(rabbitmq))
-    # asyncio.create_task(consume_state_log(rabbitmq))
+    log = consume_log(queue_name='oauth', collection='oauth', index_elastic='index-oauth')
+    task = asyncio.create_task(log)
 
 
 @app.on_event("shutdown")
