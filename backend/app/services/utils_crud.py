@@ -112,3 +112,9 @@ async def delete_Indexation_templates(id: str):
     if service_template:
         await service_template.delete_one({"_id": ObjectId(id)})
         return True
+
+
+async def retrieve_event(id: str):
+    service_query = await db.db['Indexation_templates'].find_one({"_id": ObjectId(id)})
+    if service_query:
+        return rabbit_template_helper(service_query)

@@ -4,6 +4,7 @@ from backend.app.database.mongodb import db
 from pydantic import validator
 from typing import Tuple
 from typing import List
+from fastapi import Depends, FastAPI, Query
 
 
 class RabbitMQTemplateBase(BaseModel):
@@ -30,6 +31,6 @@ class RabbitConsumerValidationBase(BaseModel):
 
 
 class RabbitConsumerBase(BaseModel):
-    queue_name: str
+    queue_name: str = Query(..., description="queue name")
     table_name: str
     validation: List[RabbitConsumerValidationBase]
