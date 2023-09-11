@@ -12,20 +12,21 @@ from backend.app.services.utils_crud import (
     retrieve_template,
     retrieve_rabbit_template,
     create_Indexation_templates,
-    update_Indexation_templates
+    update_Indexation_templates,
+    retrieve_event
 )
 from bson import ObjectId, json_util
 from fastapi.encoders import jsonable_encoder
 import json
 
-app = APIRouter()
-
+rabbit_template_router = APIRouter()
+service_router = APIRouter()
 
 # -------------------------------------------   API CRUD  -----------------------------------------------#
 
 
-@app.post("/create")
-async def create_templates(name: RabbitMQTemplateBase = Depends()):
+@service_router.post("/")
+async def create_service(name: RabbitMQTemplateBase = Depends()):
     """rabbitmq service template creating"""
 
     names = str(name.name)
@@ -37,7 +38,7 @@ async def create_templates(name: RabbitMQTemplateBase = Depends()):
     return ResponseModel(service_query, "Service name create added successfully")
 
 
-@app.get("/get_service/{id}/")
+@service_router.get("/{id}/")
 async def get_service(id: str):
     """get by ObjectId service"""
     object_id = ObjectId(id)
@@ -49,7 +50,7 @@ async def get_service(id: str):
     return ResponseModel(response_object, "successfully get object")
 
 
-@app.get("/all_services/")
+@service_router.get("/")
 async def get_services():
     """get all services from database"""
 
@@ -57,8 +58,8 @@ async def get_services():
     return ResponseModel(response_object, "Successfully get list of all services")
 
 
-@app.delete("/service{id}/")
-async def delete_service_name(id: str):
+@service_router.delete("/{id}/")
+async def delete_service(id: str):
     """delete service name"""
     objectid = ObjectId(id)
     response_object = await db.db['rabbit_template'].delete_one({'_id': objectid})
@@ -67,8 +68,8 @@ async def delete_service_name(id: str):
     return {"status": 200, "message": "Service Name successfully deleted"}
 
 
-@app.put("/service/{id}")
-async def update_event_type(id: str, data: RabbitMQTemplateBase = Body(...)):
+@service_router.put("/{id}")
+async def update_service(id: str, data: RabbitMQTemplateBase = Body(...)):
     id = ObjectId(id)
     update_data = data.model_dump(exclude_none=True)
     result = await db.db['rabbit_template'].update_one({"_id": id}, {"$set": update_data})
@@ -81,8 +82,8 @@ async def update_event_type(id: str, data: RabbitMQTemplateBase = Body(...)):
 # ---------------------------------------   Rabbit Consumer mongodb create  ----------------------------#
 
 
-@app.post("/create_event/")
-async def create_event_type(data: RabbitConsumerBase = Body(...)):
+@rabbit_template_router.post("/")
+async def create_rabbit_template(data: RabbitConsumerBase = Body(...)):
     """create rabbit validation"""
 
     queue_name = str(data.queue_name)
@@ -94,8 +95,21 @@ async def create_event_type(data: RabbitConsumerBase = Body(...)):
     return ResponseModel(response_object, "success")
 
 
-@app.get("/all_event/")
-async def get_all_event_type():
+@rabbit_template_router.get("/{id}/")
+async def get_rabbit_template(id: str):
+    object_id = ObjectId(id)
+    stores = {}
+    data = await db.db['Indexation_templates'].find_one({"_id": object_id})
+    response = json.loads(json_util.dumps(data))
+    stores.update(response)
+
+    if data is None:
+        raise HTTPException(status_code=404, detail="Data not found")
+    return ResponseModel(stores, "successfully get object")
+
+
+@rabbit_template_router.get("/")
+async def get_all_rabbit_template():
     """get alla rabbit validation"""
 
     stores = []
@@ -106,8 +120,8 @@ async def get_all_event_type():
     return stores
 
 
-@app.put("/event{id}/")
-async def update_event_type(id: str, data: RabbitConsumerBase = Body(...)):
+@rabbit_template_router.put("/{id}/")
+async def update_rabbit_template(id: str, data: RabbitConsumerBase = Body(...)):
     id = ObjectId(id)
     update_data = data.model_dump(exclude_none=True)
     result = await db.db['Indexation_templates'].update_one({"_id": id}, {"$set": update_data})
@@ -118,8 +132,8 @@ async def update_event_type(id: str, data: RabbitConsumerBase = Body(...)):
         raise HTTPException(status_code=404, detail="Event type model not found!")
 
 
-@app.delete("/event{id}/")
-async def delete_event_type(id: str):
+@rabbit_template_router.delete("/{id}/")
+async def delete_rabbit_template(id: str):
     id = ObjectId(id)
     response_object = await db.db['Indexation_templates'].delete_one({"_id": id})
     print(response_object, "ppppppp")
