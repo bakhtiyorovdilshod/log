@@ -1,7 +1,7 @@
 from bson import ObjectId
 
 from backend.app.database.mongodb import db
-from backend.app.utils.elastic_template import elastic_template_convertor
+from backend.app.utils.elastic_template import elastic_template_convertor, elastic_validation_convertor
 from backend.app.utils.response import error_response_model
 
 
@@ -81,6 +81,16 @@ class ElasticTemplateService:
     def get_collection(self):
         collection = db.db[self.collection_name]
         return collection
+
+    async def get_templates(self, service_id: str, table_name: str, method: str) -> list:
+        result_templates = []
+        collection = self.get_collection()
+        filter_criteria = dict(service_id=service_id, table_name=table_name, method=method)
+        async for template in collection.find(filter_criteria):
+            result_templates.append(
+                elastic_validation_convertor(template)
+            )
+        return result_templates
 
 
 elastic_template_service = ElasticTemplateService()

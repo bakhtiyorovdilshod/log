@@ -5,3 +5,9 @@ def elastic_template_convertor(template) -> dict:
         'method': template['method'],
         'templates': template['templates']
     }
+
+
+def elastic_validation_convertor(template) -> dict:
+    return {
+        'templates': template['templates']
+    }

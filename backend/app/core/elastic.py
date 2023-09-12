@@ -14,8 +14,9 @@ class ElasticConfig:
 
     async def save_data(self, index, body):
         resp = await self.es.index(index=index, body=body)
+
         return resp
 
     async def search_data(self, index):
-        resp = await self.es.search(index=index, body={'query': {'match_all': {}}})
+        resp = await self.es.search(index=index, body={'query': {'match_all': {}}}, size=200)
         return resp
