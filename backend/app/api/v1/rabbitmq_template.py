@@ -16,7 +16,7 @@ import json
 rabbit_template_router = APIRouter()
 service_router = APIRouter()
 
-# -------------------------------------------   API CRUD  -----------------------------------------------#
+# -------------------------------------------   Service  -----------------------------------------------#
 
 
 @service_router.post("/")
@@ -78,7 +78,7 @@ async def update_service(id: str, data: RabbitMQTemplateBase = Body(...)):
         return service.error_response_model(error="An error occured", code=400, message="Service not found!")
 
 
-# ---------------------------------------   Rabbit Consumer mongodb create  ----------------------------#
+# ---------------------------------------   Rabbit Service   ----------------------------#
 
 
 @rabbit_template_router.post("/")
