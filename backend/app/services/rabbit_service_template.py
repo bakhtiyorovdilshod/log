@@ -67,6 +67,27 @@ class RabbitServiceTemplate:
             await service_template.delete_one({"_id": ObjectId(id)})
             return True
 
+    async def get_rabbitmq_template(self, queue_name: str, table_name: str, method: str):
+        requirement_fields = []
+        service = await db.db[self.service_collection].find_one({
+            'name': queue_name
+        })
+        if service:
+            rabbit_template = await db.db[self.collection_name].find_one(
+                {
+                    'service_id': str(service.get('_id')),
+                    'table_name': table_name
+                }
+            )
+            if rabbit_template:
+                validations = rabbit_template.get('validation')
+                if len(validations) != 0:
+                    fields = [validation.get('fields', []) for validation in validations if
+                              validation.get('method') == method]
+                    if len(fields) != 0:
+                        requirement_fields = fields[0]
+            return requirement_fields
+
     async def publisher_structure(self, service_name: str, table_name: str, method: str):
         response_data = {
             'table_name': table_name,

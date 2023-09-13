@@ -1,8 +1,6 @@
 import json
 
-from backend.app.utils.elastic import write_data_elastic
-from backend.app.utils.mongodb import write_to_mongodb, get_rabbitmq_template
-from backend.app.utils.rabbit import validate_rabbitmq_data
+from backend.app.utils.mongodb import write_to_mongodb_and_elastic
 
 
 def write_log(method):
@@ -12,10 +10,10 @@ def write_log(method):
         collection = getattr(rabbitmq_instance, 'collection')
         index_elastic = getattr(rabbitmq_instance, 'index_elastic')
         rabbit_data = json.loads(result.body)
-        requirements = await get_rabbitmq_template(rabbit_data, rabbitmq_instance.queue_name)
-        status = await validate_rabbitmq_data(rabbit_data, requirements)
-        if status:
-            await write_to_mongodb(rabbit_data, collection)
-            await write_data_elastic(index_elastic, json.loads(result.body))
+        await write_to_mongodb_and_elastic(
+            queue_name=rabbitmq_instance.queue_name,
+            rabbit_data=rabbit_data,
+            collection=collection,
+            index_elastic=index_elastic)
         return result
     return wrapper
