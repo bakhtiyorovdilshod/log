@@ -41,13 +41,11 @@ async def write_data_elastic(index, body):
         username=os.environ.get('ELASTIC_PASSWORD')
     )
     await elastic_config.connect()
-    validated_data = await validate_data_elastic(
-        service_id='64fffbbce29abc320098e187',
-        table_name='organization',
-        method='create',
-        data=body
-    )
-    print(validated_data)
-    print(body)
-    resp = await elastic_config.save_data(index, validated_data)
+    # validated_data = await validate_data_elastic(
+    #     service_id='64fffbbce29abc320098e187',
+    #     table_name='organization',
+    #     method='create',
+    #     data=body
+    # )
+    resp = await elastic_config.save_data(index, body)
 
