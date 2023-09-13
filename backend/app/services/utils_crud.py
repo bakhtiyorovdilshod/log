@@ -66,7 +66,7 @@ async def object_bson_name(name: str):
 def rabbit_validation_helper(data) -> dict:
     return {
         "id": str(data['_id']),
-        "queue_name": data['queue_name'],
+        "queue_id": data['queue_id'],
         "table_name": data['table_name']}
         #   "validation": [
         #     {

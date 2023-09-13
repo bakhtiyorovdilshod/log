@@ -31,6 +31,10 @@ class RabbitConsumerValidationBase(BaseModel):
 
 
 class RabbitConsumerBase(BaseModel):
-    queue_name: str = Query(..., description="queue name")
+    service_id: str
     table_name: str
     validation: List[RabbitConsumerValidationBase]
+
+
+class ServiceId(BaseModel):
+    id: str
