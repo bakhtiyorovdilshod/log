@@ -21,7 +21,8 @@ def validate_type(value, expected_type):
 async def validate_rabbitmq_data(rabbit_data: dict, requirements: list):
     data = rabbit_data.get('data')
     count_fields = len(requirements)
-    print(requirements)
+    if count_fields == 0:
+        return False
     for requirement in requirements:
         key = requirement['key']
         expected_type = requirement['type']
