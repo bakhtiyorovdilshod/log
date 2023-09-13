@@ -29,5 +29,10 @@ class MongoManager:
         self.client.close()
         logger.info("MongoDB connection closed")
 
+    async def get_collection_data(self, collection):
+        mongodb_collection = self.db[collection]
+        mongo_data = await mongodb_collection.find({}).to_list(None)
+        return mongo_data
+
 
 db = MongoManager()
