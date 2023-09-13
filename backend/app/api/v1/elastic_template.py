@@ -1,8 +1,7 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
 
-from backend.app.schemas.elastic_template import ElasticTemplateCreateSchema, ElasticTemplateCreateResponseSchema, \
-    ErrorResponseSchema, ElasticTemplateUpdateSchema, ElasticTemplateFilterParamsSchema
+from backend.app.schemas.elastic_template import ElasticTemplateCreateSchema, ElasticTemplateUpdateSchema
 from backend.app.services.elastic_template import elastic_template_service
 
 router = APIRouter()

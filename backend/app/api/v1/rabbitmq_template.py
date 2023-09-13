@@ -1,12 +1,8 @@
 from fastapi import APIRouter, Body, HTTPException, Depends
 from backend.app.schemas.rabbitmq_template import (
-    RabbitMQTemplateBase,
     RabbitConsumerBase,
-    RabbitMQTemplateById,
-    RabbitMQTemplateBase,
-    ServiceId
+    RabbitMQTemplateBase
 )
-from backend.app.database.mongodb import db
 from backend.app.services.rabbit_service_template import RabbitServiceTemplate
 from backend.app.services.service_template import ServiceTemplate
 from bson import ObjectId, json_util
@@ -23,11 +19,10 @@ service_router = APIRouter()
 async def create_service(data: RabbitMQTemplateBase = Body(...)):
     """rabbitmq service template creating"""
     service = ServiceTemplate()
-    data = str(data.name)
-    response_object = await service.get_collection().find_one({'name': data})
+    response_object = await service.get_collection().find_one({'name': str(data.name)})
     if response_object:
         return service.error_response_model(error="An error occured", code=400, message=f"This is already existing")
-    json_query = jsonable_encoder(name)
+    json_query = jsonable_encoder(data)
     service_query = await service.create_template(json_query)
     return service.responseModel(service_query, "Service name create added successfully")
 
@@ -64,7 +59,7 @@ async def delete_service(id: str):
     return {"status": 200, "message": "Service Name successfully deleted"}
 
 
-@service_router.put("/{id}")
+@service_router.put("/{id}/")
 async def update_service(id: str, data: RabbitMQTemplateBase = Body(...)):
 
     service = ServiceTemplate()
@@ -78,6 +73,16 @@ async def update_service(id: str, data: RabbitMQTemplateBase = Body(...)):
         return service.error_response_model(error="An error occured", code=400, message="Service not found!")
 
 
+@service_router.get("/table/attributes/")
+async def service_attributes(table_name: str, service_id: str, method: str):
+    service_template = ServiceTemplate()
+    result = await service_template.attributes(
+        table_name=table_name,
+        service_id=service_id,
+        method=method
+    )
+    return result
+
 # ---------------------------------------   Rabbit Service   ----------------------------#
 
 
@@ -88,7 +93,8 @@ async def create_rabbit_template(data: RabbitConsumerBase = Body(...)):
     service = ServiceTemplate()
     queue = str(data.service_id)
     queue_id = ObjectId(data.service_id)
-    response_object = await rabbit_service.get_collection().find_one({'service_id': queue})
+    response_object = await rabbit_service.get_collection().find_one(
+        {'service_id': queue, 'table_name': str(data.table_name)})
     service = await service.get_collection().find_one({'_id': ObjectId(data.service_id)})
     if service is None:
         return rabbit_service.error_response_model(error="An error occurred", code=400, message="queue_id is incorrect , please create another one!")
@@ -112,7 +118,7 @@ async def get_rabbit_template(id: str):
 
     if data is None:
         return rabbit_service.error_response_model(error="an error occured", code=400, message="Data not found!")
-    return rabbitservice.responseModel(stores, "successfully get object")
+    return rabbit_service.responseModel(stores, "successfully get object")
 
 
 @rabbit_template_router.get("/")
@@ -145,10 +151,21 @@ async def delete_rabbit_template(id: str):
     rabbit_service = RabbitServiceTemplate()
     id = ObjectId(id)
     response_object = await rabbit_service.get_collection().delete_one({"_id": id})
-    print(response_object, "ppppppp")
     if response_object.deleted_count == 0:
         return rabbit_service.error_response_model(error="An error not found!", code=400, message=f"{id} is not found!")
     return {"status": 200, "message": "Service Name successfully deleted"}
+
+
+@rabbit_template_router.get("/publisher/structure/")
+async def publisher_structure(service_name: str, table_name: str, method: str):
+    rabbit_service = RabbitServiceTemplate()
+    return await rabbit_service.publisher_structure(
+        service_name=service_name,
+        table_name=table_name,
+        method=method
+    )
+
+
 
 
 
