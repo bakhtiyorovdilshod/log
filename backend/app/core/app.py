@@ -22,6 +22,7 @@ async def startup():
     await db.connect_to_database(path=os.environ.get('MongoDB_URL'))
     log = consume_log(queue_name='oauth', collection='oauth', index_elastic='index-oauth')
     task = asyncio.create_task(log)
+    print(task)
 
 
 @app.on_event("shutdown")
